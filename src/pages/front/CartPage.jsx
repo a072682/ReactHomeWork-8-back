@@ -3,140 +3,89 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import ReactLoading from 'react-loading';
 import { Link } from "react-router-dom";
+import "swiper/css";// 核心 CSS
+import { Autoplay } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getCartSlice, getCouponsSlice, removeCartItemSlice, removeCartSlice, updateCartItemSlice } from "../../slice/productsSlice";
+import Toast from "../../components/common/Toast";
+import { pushMessage } from "../../slice/toastSlice";
+
+
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
-import Swiper from "swiper";
-import { Autoplay } from "swiper/modules";
-import "swiper/css";
 
 function CartPage(){
 
-    const [cart,setCart] = useState({});
+    
+    // const [isScreenLoading,setIsScreenLoading] = useState(false);
 
-    const [isScreenLoading,setIsScreenLoading] = useState(false);
+    //獲取遠端讀取狀態
+    const isScreenLoading = useSelector((state)=>{
+        return(
+          state.products.IsScreenLoading
+        )
+    });
   
     const swiperRef = useRef(null);
 
+    //抓取遠端資料前置
+    const dispatch = useDispatch();
 
-    const getCart = async()=>{
-        try{
-        const getCartRef = await axios.get(`${BASE_URL}/v2/api/${API_PATH}/cart`);
-        console.log("取得購物車成功",getCartRef.data);
-        setCart(getCartRef.data.data);
-        console.log("測試",getCartRef.data.data);
-        }
-        catch(error){
-        console.log("取得購物車失敗",error.data);
-        }
-    } 
+    //移動網頁前置
+    const navigate = useNavigate();
+
+    //獲取購物車資料
+    const cart = useSelector((state)=>{
+        return(
+          state.products.CartData
+        )
+    });
+
+    
 
     useEffect(() => {
-        getCart();
-
-        new Swiper(swiperRef.current, {
-          modules: [Autoplay],
-          loop: true,
-          autoplay: {
-            delay: 2500,
-            disableOnInteraction: false,
-          },
-          slidesPerView: 2,
-          spaceBetween: 10,
-          breakpoints: {
-            767: {
-              slidesPerView: 3,
-              spaceBetween: 30,
-            },
-          },
-        });
+      dispatch(getCartSlice());
+      dispatch(getCouponsSlice());
     }, []);
 
 
-    const removeCartItem = async(cartItem_id)=>{
-        setIsScreenLoading(true);
-        try{
-          const removeCartItemRef = await axios.delete(`${BASE_URL}/v2/api/${API_PATH}/cart/${cartItem_id}`);
-          console.log("刪除產品成功",removeCartItemRef.data);
-          getCart();
-        }catch(error){
-          console.log("刪除產品失敗",error.data)
-        }finally{
-          setIsScreenLoading(false);
-        }
+    const removeCartItem = (cartItem_id)=>{
+        console.log("id:",cartItem_id);
+        dispatch(removeCartItemSlice(cartItem_id));
       }
     
-      const removeCart = async()=>{
-        setIsScreenLoading(true);
-        try{
-          const removeCartRef = await axios.delete(`${BASE_URL}/v2/api/${API_PATH}/carts`);
-          console.log("清空購物車成功",removeCartRef.data);
-          getCart();
-        }catch(error){
-          console.log("清空購物車失敗",error.data)
-        }finally{
-          setIsScreenLoading(false);
-        }
-      }
+    const removeCart = ()=>{
+      console.log("購物車清除:");
+      dispatch(removeCartSlice());
+      dispatch(
+                pushMessage({
+                  text: "清除成功",
+                  status: "success",
+                })
+              );
+    }
+
+    // const test2 = ()=>{
+    //   dispatch(
+    //     pushMessage({
+    //       text: "測試2",
+    //       status: "failed",
+    //     })
+    //   );
+    // }
     
-      const updateCartItem = async(cartItem_id,product_id,qty)=>{
-        setIsScreenLoading(true);
-        try{
-          const updateCartItemRef = await axios.put(`${BASE_URL}/v2/api/${API_PATH}/cart/${cartItem_id}`,{
-            data:{
-              product_id,
-              qty:Number(qty)
-            }
-          });
-          console.log("更新產品資訊成功",updateCartItemRef.data);
-          getCart();
-        }catch(error){
-          console.log("更新產品資訊失敗",error.data)
-        }finally{
-          setIsScreenLoading(false);
-        }
-      }
-
-
-
-      const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset
-      } = useForm();
-      
-      const onSubmit = handleSubmit((data)=>{
-        console.log(data);
-        const { message, ...user} = data;
-        const userInfo = {
-          data:{
-            user,
-            message
-          }
-        }
-        checkOut(userInfo);
-      })
-    
-      const checkOut = async(data)=>{
-        setIsScreenLoading(true);
-        try{
-          const checkOutRef = await axios.post(`${BASE_URL}/v2/api/${API_PATH}/order`,data);
-          reset();
-          console.log("結帳成功",checkOutRef.data);
-        }catch(error){
-          console.log("結帳失敗",error.data);
-        }finally{
-          setIsScreenLoading(false);
-        }
-      }
-
-
-
+    const updateCartItem = async(cartItem_id,product_id,qty)=>{
+      console.log("購物車更新",cartItem_id,product_id,qty)
+      dispatch(updateCartItemSlice({cartItem_id,product_id,qty}));
+    }
 
     
     return (
+    
       <div className="container-fluid">
         <div className="container">
           <div className="mt-3">
@@ -155,7 +104,9 @@ function CartPage(){
                       <th scope="col" className="border-0">
                         產品價格
                       </th>
-                      <th scope="col" className="border-0"></th>
+                      <th scope="col" className="border-0">
+                        刪除產品
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -221,8 +172,8 @@ function CartPage(){
                             </td>
                             <td className="border-0 align-middle">
                               <button
-                                onClick={()=>{removeCartItem(cartItem.id)}}
-                                className="btn btn-outline-dark border-0 py-2"
+                                onClick={()=>{removeCartItem(cartItem.id);}}
+                                className="btn btn-outline-dark border-0 py-2 d-block mx-auto"
                                 type="button"
                                 id="button-addon2"
                               >
@@ -234,26 +185,25 @@ function CartPage(){
                       })
                     }
                     
+                    
                   </tbody>
+                  {
+                    cart.carts?.length >= 1 ?
+                    (
+                      <tr>
+                        <th></th>
+                        <td></td>
+                        <td></td>
+                        <td>
+                          <button onClick={()=>{removeCart()}} type="button" className="btn btn-dark mt-4">清除購物車</button>
+                        </td>
+                      </tr>  
+                    )
+                    :
+                    ("") 
+                  }
+                      
                 </table>
-                <div className="input-group w-50 mb-3">
-                  <input
-                    type="text"
-                    className="form-control rounded-0 border-bottom border-top-0 border-start-0 border-end-0 shadow-none"
-                    placeholder="Coupon Code"
-                    aria-label="Recipient's username"
-                    aria-describedby="button-addon2"
-                  />
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-dark border-bottom border-top-0 border-start-0 border-end-0 rounded-0"
-                      type="button"
-                      id="button-addon2"
-                    >
-                      <i className="fas fa-paper-plane"></i>
-                    </button>
-                  </div>
-                </div>
               </div>
               <div className="col-md-4">
                 <div className="border p-4 mb-4">
@@ -286,7 +236,7 @@ function CartPage(){
                     <p className="mb-0 h4 fw-bold">總計</p>
                     <p className="mb-0 h4 fw-bold">NT${cart.final_total}</p>
                   </div>
-                  <Link to="/checkout-form" className="btn btn-dark w-100 mt-4">
+                  <Link to="/checkout-payment" className="btn btn-dark w-100 mt-4">
                     結帳
                   </Link>
                 </div>
@@ -294,123 +244,50 @@ function CartPage(){
             </div>
             <div className="my-5">
               <h3 className="fw-bold">Lorem ipsum dolor sit amet</h3>
-              <div ref={swiperRef} className="swiper mt-4 mb-5">
-                <div className="swiper-wrapper">
-                  <div className="swiper-slide">
-                    <div className="card border-0 mb-4 position-relative position-relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-                        className="card-img-top rounded-0"
-                        alt="..."
-                      />
-                      <a href="#" className="text-dark"></a>
-                      <div className="card-body p-0">
-                        <h4 className="mb-0 mt-3">
-                          <a href="#">Lorem ipsum</a>
-                        </h4>
-                        <p className="card-text mb-0">
-                          NT$1,080
-                          <span className="text-muted ">
-                            <del>NT$1,200</del>
-                          </span>
-                        </p>
-                        <p className="text-muted mt-3"></p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="swiper-slide">
-                    <div className="card border-0 mb-4 position-relative position-relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-                        className="card-img-top rounded-0"
-                        alt="..."
-                      />
-                      <a href="#" className="text-dark"></a>
-                      <div className="card-body p-0">
-                        <h4 className="mb-0 mt-3">
-                          <a href="#">Lorem ipsum</a>
-                        </h4>
-                        <p className="card-text mb-0">
-                          NT$1,080
-                          <span className="text-muted ">
-                            <del>NT$1,200</del>
-                          </span>
-                        </p>
-                        <p className="text-muted mt-3"></p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="swiper-slide">
-                    <div className="card border-0 mb-4 position-relative position-relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-                        className="card-img-top rounded-0"
-                        alt="..."
-                      />
-                      <a href="#" className="text-dark"></a>
-                      <div className="card-body p-0">
-                        <h4 className="mb-0 mt-3">
-                          <a href="#">Lorem ipsum</a>
-                        </h4>
-                        <p className="card-text mb-0">
-                          NT$1,080
-                          <span className="text-muted ">
-                            <del>NT$1,200</del>
-                          </span>
-                        </p>
-                        <p className="text-muted mt-3"></p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="swiper-slide">
-                    <div className="card border-0 mb-4 position-relative position-relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-                        className="card-img-top rounded-0"
-                        alt="..."
-                      />
-                      <a href="#" className="text-dark"></a>
-                      <div className="card-body p-0">
-                        <h4 className="mb-0 mt-3">
-                          <a href="#">Lorem ipsum</a>
-                        </h4>
-                        <p className="card-text mb-0">
-                          NT$1,080
-                          <span className="text-muted ">
-                            <del>NT$1,200</del>
-                          </span>
-                        </p>
-                        <p className="text-muted mt-3"></p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="swiper-slide">
-                    <div className="card border-0 mb-4 position-relative position-relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-                        className="card-img-top rounded-0"
-                        alt="..."
-                      />
-                      <a href="#" className="text-dark"></a>
-                      <div className="card-body p-0">
-                        <h4 className="mb-0 mt-3">
-                          <a href="#">Lorem ipsum</a>
-                        </h4>
-                        <p className="card-text mb-0">
-                          NT$1,080
-                          <span className="text-muted ">
-                            <del>NT$1,200</del>
-                          </span>
-                        </p>
-                        <p className="text-muted mt-3"></p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              
+                <Swiper
+                    modules={[Autoplay]}
+                    spaceBetween={10}
+                    slidesPerView={1}
+                    breakpoints={{
+                      992: { slidesPerView: 3 }, // 電腦顯示 1 張
+                    }}
+                    loop={true}
+                    autoplay={{ delay: 2500 }}
+                    className="mySwiper"
+                    >
+                    {
+                        cart.carts?.map((item,index)=>{
+                            return(
+                                <SwiperSlide>
+                                    
+                                                <div key={index} className="card border-0 mb-4 position-relative">
+                                                    <img
+                                                      src={item.product.imageUrl}
+                                                      className="card-img-top rounded-3 ProductDetailPageImgSet"
+                                                      alt="..."
+                                                    />
+                                                    <a href="#" className="text-dark"></a>
+                                                    <div className="card-body p-0">
+                                                      <h4 className="mb-0 mt-3">
+                                                        <a href="#">{item.product.title}</a>
+                                                      </h4>
+                                                      <p className="card-text mb-0">
+                                                        NT${item.final_total}
+                                                      </p>
+                                                      <p className="text-muted mt-3"></p>
+                                                    </div>
+                                                </div>
+                                            
+                                </SwiperSlide>
+                            )
+                        })
+                    }
+                </Swiper>
             </div>
           </div>
         </div>
+        <button onClick={()=>{test2()}} type="button" className="btn btn-dark">測試</button>
         {isScreenLoading && 
             (
             <div  className="d-flex justify-content-center align-items-center" 
@@ -420,7 +297,10 @@ function CartPage(){
             </div>
             )
         }
+        <Toast />
       </div>
+      
+      
     );
     
 

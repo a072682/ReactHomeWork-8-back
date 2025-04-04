@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import Toast from "../../components/common/Toast";
+
 
 export default function CheckoutSuccessPage() {
     return (
@@ -40,6 +42,7 @@ export default function CheckoutSuccessPage() {
             }}
           ></div>
         </div>
+        <Toast />
       </div>
     );
   }

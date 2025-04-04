@@ -2,3 +2,7 @@
 @import "helpers/variables";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 @import "./layout/custom";
+@import "./pages/ProductsFrontPage";
+@import "./pages/front/HomePage";
+@import "./pages/front/CheckoutPaymentPage";
+@import "./pages/back/ProductsPage";

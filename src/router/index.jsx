@@ -1,13 +1,22 @@
 import { createHashRouter } from "react-router-dom";
 import FrontLayout from "../layouts/FrontLayout";
-import HomePage from "../pages/HomePage";
-import ProductsPage from "../pages/ProductsPage";
-import ProductDetailPage from "../pages/ProductDetailPage";
-import CartPage from "../pages/CartPage";
+import HomePage from "../pages/front/HomePage";
+import ProductDetailPage from "../pages/front/ProductDetailPage";
+import CartPage from "../pages/front/CartPage";
+import CheckoutFormPage from "../pages/front/CheckoutFormPage";
+import CheckoutPaymentPage from "../pages/front/CheckoutPaymentPage";
+import CheckoutSuccessPage from "../pages/front/CheckoutSuccessPage";
 import NotFound from "../pages/NotFound";
-import CheckoutFormPage from "../pages/CheckoutFormPage";
-import CheckoutPaymentPage from "../pages/CheckoutPaymentPage";
-import CheckoutSuccessPage from "../pages/CheckoutSuccessPage";
+import ProductsFrontPage from "../pages/front/ProductsFrontPage";
+import ProductsPage from "../pages/back/ProductsPage";
+import CouponsPage from "../pages/back/CouponsPage";
+import ArticlePage from "../pages/back/ArticlePage";
+import OrderPage from "../pages/back/OrderPage";
+import BackLayout from "../layouts/BackLayout";
+import FrontArticlePage from "../pages/front/FrontArticlePage";
+import FrontArticleSinglePage from "../pages/front/FrontArticleSinglePage";
+
+
 
 
 const router = createHashRouter([
@@ -21,11 +30,19 @@ const router = createHashRouter([
             },
             {
                 path: "products",
-                element: <ProductsPage />,
+                element: <ProductsFrontPage />,
             },
             {
                 path: "products/:id",
                 element: <ProductDetailPage />,
+            },
+            {
+                path: "FrontArticlePage",
+                element: <FrontArticlePage />,
+            },
+            {
+                path: "FrontArticlePage/:id",
+                element: <FrontArticleSinglePage />,
             },
             {
                 path: "cart",
@@ -43,7 +60,32 @@ const router = createHashRouter([
                 path: "checkout-success",
                 element: <CheckoutSuccessPage />,
             },
-
+        ]
+    },
+    {
+        path: "/backpages",
+        element: <BackLayout />,
+        children:[
+            {
+                path: "",
+                element: <ProductsPage />,
+            },
+            {
+                path: "ProductsPage",
+                element: <ProductsPage />,
+            },
+            {
+                path: "OrderPage",
+                element: <OrderPage />,
+            },
+            {
+                path: "CouponsPage",
+                element: <CouponsPage />,
+            },
+            {
+                path: "ArticlePage",
+                element: <ArticlePage />,
+            },
         ]
     },
     {

@@ -1,7 +1,30 @@
+/* 修改的部分：添加了過渡效果的樣式 */
+.custom-collapse { /* 新增樣式 */
+  height: 0px; /* 初始狀態為折疊 */
+  overflow: hidden; /* 隱藏內容 */
+  transition: height 0.3s ease-out; /* 添加過渡效果 */
+}
+
+.custom-collapse.show { /* 新增樣式，當 Collapse 顯示時 */
+  height: auto; /* 設定較大的最大高度 */
+}
+
 .custom-checkout-label {
   padding-left: 28px;
   cursor: pointer;
+  position: relative;
 }
+
+input[type="radio"] {
+  display: none; /* 隱藏 radio 按鈕 */
+}
+
+/* 點選 radio 按鈕時，隱藏 ::before */
+input[type="radio"]:checked ~ .custom-checkout-label::before {
+  display: block;
+}
+
+/* 基本的 ::before 和 ::after 設置 */
 .custom-checkout-label {
   &::after, &::before {
     content: "";
@@ -9,24 +32,30 @@
     position: absolute;
     border-radius: 50%;
   }
+
   &::after {
     left: 0px;
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
-    border: 1px solid $gray-900;
+    border: 1px solid #000; /* 設定邊框顏色 */
   }
+
   &::before {
+    display: none;
     left: 10px;
     transform: translate(-50%, -50%);
     width: 14px;
     height: 14px;
-    background-color: $gray-900;
+    background-color: #000; /* 設定背景顏色 */
   }
 }
+
+/* 在 collapsed 狀態下隱藏 ::before */
 .card-header.collapsed .custom-checkout-label::before {
   display: none;
 }
+
 
 .custom-step-line {
   position: absolute;
