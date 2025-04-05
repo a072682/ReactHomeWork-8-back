@@ -7,7 +7,7 @@ export default function Footer() {
           <div className="container">
             <div className="d-flex align-items-center justify-content-between text-white mb-md-7 mb-4">
               <Link className="text-white h4" to="/">
-                <img src="/assets/images/logo.png" className='bg-black rounded-3 test-img' alt="logo" />
+                <img src={`${import.meta.env.BASE_URL}assets/images/logo.png`} className='bg-black rounded-3 test-img' alt="logo" />
               </Link >
               <ul className="d-flex list-unstyled mb-0 h4">
                 <li>
