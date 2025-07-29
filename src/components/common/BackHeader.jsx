@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../slice/loginSlice";
 
 const backHeaderItem = [
-  { path: "/backpages/ProductsPage", name: "Product" },
-  { path: "/backpages/OrderPage", name: "Order" },
-  { path: "/backpages/CouponsPage", name: "Coupons" },
-  { path: "/backpages/login", name: "Login", type: "button" },
+  { path: "/", name: "Product" },
+  { path: "/OrderPage", name: "Order" },
+  { path: "/CouponsPage", name: "Coupons" },
+  { path: "/login", name: "Login", type: "button" },
 ];
 
 export default function BackHeader() {
@@ -50,7 +50,7 @@ export default function BackHeader() {
         }}
       >
         <nav className="navbar navbar-expand-lg navbar-light">
-          <Link className="navbar-brand" to="/backpages/ProductsPage">
+          <Link className="navbar-brand" to="/">
             Navbar
           </Link>
           <button

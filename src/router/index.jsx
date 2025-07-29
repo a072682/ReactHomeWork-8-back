@@ -12,15 +12,11 @@ import BackLayout from "../layouts/BackLayout";
 
 const router = createHashRouter([
     {
-        path: "/backpages",
+        path: "/",
         element: <BackLayout />,
         children:[
             {
                 path: "",
-                element: <ProductsPage />,
-            },
-            {
-                path: "ProductsPage",
                 element: <ProductsPage />,
             },
             {

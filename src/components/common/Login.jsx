@@ -94,7 +94,7 @@ function Login({setModalInstance,}){
                 });
                 btnByMoadlClose();
                 //關閉login視窗
-                navigate("/backpages");
+                navigate("/");
                 //傳送至首頁
             }
         }catch(error){

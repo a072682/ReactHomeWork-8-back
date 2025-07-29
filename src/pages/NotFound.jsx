@@ -4,7 +4,7 @@ function NotFound (){
     return(
         <div>
             <h1>此路由不存在</h1>
-            <Link to="/backpages">回到首頁</Link>
+            <Link to="/">回到首頁</Link>
         </div>
     )
 }
