@@ -26,17 +26,10 @@ export const loginSlice = createSlice({
           state.token = payload.token;
           state.expired = payload.expired;
         },
-        initializeAuth: (state) => {  // ✅ 初始化登入狀態
-            const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-            if (token) {
-                state.isAuthenticated = true;
-                axios.defaults.headers.common["Authorization"] = token;
-            }
-        }
       },
   });
 
-export const { login, logout, tokenUpData, initializeAuth } = loginSlice.actions;
+export const { login, logout, tokenUpData } = loginSlice.actions;
 
 //登入 API 請求
 //account 由jsx那邊提供
@@ -51,10 +44,14 @@ export const loginUser = createAsyncThunk(
             dispatch(login(account));
             dispatch(tokenUpData({token,expired}));
             document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
+            //document.cookie為設定瀏覽器中的
+            axios.defaults.headers.common['Authorization'] = token;
+            //設定 axios 的全域預設標頭之後發出的每一個請求自動帶上 Authorization 標頭
+            console.log("已設置axios前置",token);
             return({token,expired})
         } catch (error) {
             console.log("登入失敗(Slice端)",error.response.data);
-            return(error.response.data);
+            return rejectWithValue(error.response.data);
         }
     }
 );
@@ -66,6 +63,11 @@ export const checkLogin = createAsyncThunk(
         try {
             const response = await axios.post(`${BASE_URL}/v2/api/user/check`);
             console.log("登入驗證成功(Slice端)",response.data);
+            const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,"$1",);
+            console.log("已提取cookie",token);
+            axios.defaults.headers.common['Authorization'] = token;
+            //設定 axios 的全域預設標頭之後發出的每一個請求自動帶上 Authorization 標頭
+            console.log("已設置axios前置");
             dispatch(login());
             return(response.data);
         } catch (error) {

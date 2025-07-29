@@ -1,0 +1,142 @@
+
+
+.br-40{
+    border-radius: 40px;
+}
+
+
+/* 顏色 */
+    .col-0027D5{
+        color: #0027D5;
+    }
+    .col-0027D5{
+        color: #0027D5;
+    }
+    .col-3c67dc{
+        color: #3c67dc;
+    }
+    .col-000000{
+        color: #000000;
+    }
+    .col-ffffff{
+        color: #ffffff;
+    }
+    .col-4B4B4B{
+        color: #4B4B4B;
+    }
+    .bg-0027D5{
+        background-color: #0027D5;
+    }
+    .bg-3c67dc{
+        background-color: #3c67dc;
+    }
+    .bg-000000{
+        background-color: #000000;
+    }
+    .bg-ffffff{
+        background-color: #ffffff;
+    }
+    
+/* 顏色 */
+
+/* 字體 */
+    p {
+    overflow-wrap: break-word;
+    word-break: break-word; 
+    }
+
+    .fontFamily{
+        font-family: 'Noto Sans TC', sans-serif;
+    }
+    .fw-500{
+        font-weight: 500;
+    }
+    .fw-700{
+        font-weight: 700;
+    }
+    .fw-900{
+        font-weight: 900;
+    }
+    .fs-120{
+        font-size: 120px;
+    }
+    .fs-100{
+        font-size: 100px;
+    }
+    .fs-64{
+        font-size: 64px;
+    }
+    .fs-52{
+        font-size: 52px;
+    }
+    .fs-48{
+        font-size: 48px;
+    }
+    .fs-32{
+        font-size: 32px;
+    }
+    .fs-28{
+        font-size: 28px;
+    }
+    .fs-24{
+        font-size: 24px;
+    }
+    .fs-20{
+        font-size: 20px;
+    }
+    .fs-16{
+        font-size: 16px;
+    }
+    .lh-15{
+        line-height: 1.5;
+    }
+    .lh-12{
+        line-height: 1.2;
+    }
+/* 字體 */
+
+/*圖片*/
+.img-set{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/*效果*/
+.pointer{
+    cursor: pointer;
+}
+
+/*長寬*/
+
+// 最小尺寸與最大上限
+$min-size: 1;
+$max-size: 1000;
+
+// 寬度類別
+@for $i from $min-size through $max-size {
+  .w#{$i} {
+    width: #{$i}px;
+  }
+}
+
+// 高度類別
+@for $i from $min-size through $max-size {
+  .h#{$i} {
+    height: #{$i}px;
+  }
+}
+
+.card-text{
+    /* width: 416px;
+    height: 48px; */
+
+    display: -webkit-box; /*-webkit-box + -webkit-box-orient 搭配 line-clamp 使用，讓文字可被裁切*/
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* 限制文字最多顯示幾行（這裡設為 2） */
+    
+
+    overflow: hidden; /*隱藏超出範圍的文字*/
+    text-overflow: ellipsis; /*加上「...」效果*/
+    /*line-height: 1.5;*/ /* 48px 高度 ÷ 2 行 = 24px 單行高度 */
+}

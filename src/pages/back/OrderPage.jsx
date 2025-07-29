@@ -6,6 +6,9 @@ import OrderProductModal from "../../components/common/back/OrderProductModal";
 import { useDispatch, useSelector } from "react-redux";
 import { changeBackOrderData, delBackOrderData, getBackOrderDataSlice } from "../../slice/backProductsSlice";
 import Toast from "../../components/common/Toast";
+import ReactPagination from "../../components/common/ReactPagination";
+import { checkLogin } from "../../slice/loginSlice";
+
 
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -16,6 +19,23 @@ function OrderPage(){
 
     //抓取遠端資料前置
     const dispatch = useDispatch();
+
+    //取得後端登入狀態資料
+    const loginState = useSelector((state)=>{
+        return(
+        state.login.isAuthenticated
+        )
+    });
+
+    useEffect(()=>{
+        dispatch(checkLogin());
+    },[])
+
+    useEffect(()=>{
+        if(loginState){
+            console.log("登入狀態:",loginState);
+        }
+    },[loginState])
 
     //獲取遠端訂單資料
     const orderData = useSelector((state)=>{
@@ -29,6 +49,12 @@ function OrderPage(){
             dispatch(getBackOrderDataSlice());
             console.log("初始訂單資料:",orderData);
         },[])
+
+        useEffect(()=>{
+            if(orderData){
+                console.log("登入狀態:",loginState);
+            }
+        },[orderData])
     //訂單資料
 
     //訂購人頁面開關
@@ -103,113 +129,144 @@ function OrderPage(){
             }
         //刪除訂單資料
 
+//處理頁碼狀態
+    const [currentPage, setCurrentPage] = useState(1);//頁碼狀態
+    // const totalItems = allThemeData?.length;
+    const itemsPerPage = 8;//上限
+    const totalPages = orderData && orderData.length > 0 ? Math.ceil(orderData.length / itemsPerPage): 1;//Math.ceil無條件進位
+    //總頁數
+
+    const indexOfLastItem = currentPage * itemsPerPage;//算出當前頁面的資料顯示範圍 
+    // 例如:currentPage(第幾頁) = 1，itemsPerPage = 8，那 indexOfLastItem = 1 * 8 = 8
+    //「第1頁」的資料範圍會是 第0筆~第7筆（共8筆）
+
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    //取得索引的前部分數字
+    //indexOfLastItem = 8 itemsPerPage = 8 所以indexOfFirstItem = 8 - 8 = 0
+    const newOrderData = orderData?.slice(indexOfFirstItem, indexOfLastItem);
+    // console.log("過濾後的資料02",newProductsData);
+    //因此allThemeData.slice(0, 8) 取出0~7筆資料顯示
+    console.log("產品資料",newOrderData);
+
+    // 切換頁數時執行的動作
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+        // console.log("切換到第", newPage, "頁");
+        // 可以在這裡載入對應頁碼的資料
+    };
+//處理頁碼狀態
+
     return(
         <>
-            <div className="container-fluid">
-                <div className="container">
+            {/* <div className="container-fluid"> */}
+                <div className={`container`}>
                     <div className="mt-3">
-                        <h3 className="mt-3 mb-4">訂單頁面</h3>
+                        <div className="d-flex align-items-center mb-12 gap-12">
+                            <h3 className="mt-3 mb-12">訂單頁面</h3>
+                            <button onClick={()=>{dispatch(getBackOrderDataSlice());}} type="button" className="btn btn-dark">手動刷新</button>
+                        </div>
                         <div className="row">
                             <div className="col-md-12">
-                                <table className="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" className="border-0">
-                                            訂單建立時間
-                                            </th>
-                                            <th scope="col" className="border-0 ps-0">
-                                            訂購人
-                                            </th>
-                                            <th scope="col" className="border-0">
-                                            訂單總金額
-                                            </th>
-                                            <th scope="col" className="border-0">
-                                            付款狀態
-                                            </th>
-                                            <th scope="col" className="border-0 ps-4">
-                                            訂購商品
-                                            </th>
-                                            <th scope="col" className="border-0">
-                                            刪除訂單
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <div className="order-table">
+                                    
+                                    <div className="w-100 d-flex justify-content-center py-12">
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        訂單建立時間
+                                        </div>
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        訂購人
+                                        </div>
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        訂單總金額
+                                        </div>
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        付款狀態
+                                        </div>
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        訂購商品
+                                        </div>
+                                        <div scope="col" className="w-100 border-0 text-center">
+                                        刪除訂單
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="table-body mb-24">
                                         {
-                                            orderData?.map((item)=>{
-                                                return(
-                                                    <tr key={item.id} className="border-bottom border-top">
-                                                        <th
-                                                        scope="row"
-                                                        className="border-0 px-0 font-weight-normal py-4"
-                                                        >
-                                                            <p className="mb-0 fw-bold ms-3 d-inline-block">
-                                                                {new Date(item.create_at * 1000).toLocaleDateString("zh-TW")}
-                                                            </p>
-                                                        </th>
-                                                        <td className="border-0 align-middle">
-                                                            <button onClick={()=>{handleOrderUserModal?.show(); setHandleOrderUserData(item.user);getOrderIn(item)}} className="btn btn-outline-dark border-0 py-2" type="button"><p className="mb-0 ms-auto">{item.user?.name}</p></button>
-                                                        </td>
-                                                        <td className="border-0 align-middle">
-                                                            <p className="mb-0 ms-auto">{item.total}</p>
-                                                        </td>
-                                                        <td className="border-0 align-middle">
-                                                            <p className="mb-0 ms-auto">{item.paid?("已付款"):("未付款")}</p>
-                                                        </td>
-                                                        <td className="border-0 align-middle">
-                                                            <button
-                                                                onClick={()=>{handleOrderProductModal?.show();getOrderIn(item);setHandleOrderUserData(item.user);}}
-                                                                className="btn btn-outline-dark border-0"
-                                                                type="button"
+                                            loginState?
+                                            (
+                                                orderData?.map((item)=>{
+                                                    return(
+                                                        <div key={item.id} className="border-bottom border-top py-12 d-flex justify-content-center align-items-center">
+                                                            <div
+                                                            scope="row"
+                                                            className="w-100 border-0 px-0 font-weight-normal text-center"
                                                             >
-                                                                查看商品訂單詳情
-                                                            </button>
-                                                        </td>
-                                                        <td className="border-0 align-middle">
-                                                            <button
-                                                                onClick={()=>{delOrderData(item)}}
-                                                                className="btn btn-outline-dark border-0 py-2"
-                                                                type="button"
-                                                            >
-                                                                <i className="fas fa-times"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            })
+                                                                <p className="mb-0 fw-bold ms-3 d-inline-block">
+                                                                    {new Date(item.create_at * 1000).toLocaleDateString("zh-TW")}
+                                                                </p>
+                                                            </div>
+                                                            <div className="w-100 border-0 align-middle text-center">
+                                                                <button onClick={()=>{handleOrderUserModal?.show(); setHandleOrderUserData(item.user);getOrderIn(item)}} className="btn btn-outline-dark border-0 p-0" type="button"><p className="mb-0 ms-auto">{item.user?.name}</p></button>
+                                                            </div>
+                                                            <div className="w-100 border-0 align-middle text-center">
+                                                                <p className="mb-0 ms-auto">{item.total}</p>
+                                                            </div>
+                                                            <div className="w-100 border-0 align-middle text-center">
+                                                                <p className="mb-0 ms-auto">{item.paid?("已付款"):("未付款")}</p>
+                                                            </div>
+                                                            <div className="w-100 border-0 align-middle text-center">
+                                                                <button
+                                                                    onClick={()=>{handleOrderProductModal?.show();getOrderIn(item);setHandleOrderUserData(item.user);}}
+                                                                    className="btn btn-outline-dark border-0 p-0"
+                                                                    type="button"
+                                                                >
+                                                                    查看商品訂單詳情
+                                                                </button>
+                                                            </div>
+                                                            <div className="w-100 border-0 align-middle text-center">
+                                                                <button
+                                                                    onClick={()=>{delOrderData(item)}}
+                                                                    className="btn btn-outline-dark border-0 py-2"
+                                                                    type="button"
+                                                                >
+                                                                    <i className="fas fa-times"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })
+                                            )
+                                            :
+                                            (
+                                                null
+                                            )
                                         }
-                                    </tbody>
-                                </table>
+                                    </div>
+                                </div>
+                                {
+                                    loginState?
+                                    (
+                                        null
+                                    )
+                                    :
+                                    (
+                                        <div className="text-center py-24">
+                                            <h2 className="m-0">請登入後台使用者帳號</h2>
+                                        </div>
+                                    )
+                                }
                             </div>
                         </div>
                         <nav className="d-flex justify-content-center">
-                            <ul className="pagination">
-                                <li className="page-item">
-                                    <a className="page-link" href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                {
-                                    // Array.from({length: pagination?.total_pages}).map((_,index)=>
-                                    // {
-                                    //     return(
-                                    //         <li key={index} className={`page-item ${pagination?.current_page === index + 1 && "active"}`}>
-                                    //         <a onClick={(event)=>{event.preventDefault(); dispatch(getOriginalData(index + 1));}} className="page-link" href="#">
-                                    //             {index + 1}
-                                    //         </a>
-                                    //         </li>)
-                                    // })
-                                }
-                                <li className="page-item">
-                                    <a className="page-link" href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </ul>
+                            <ReactPagination 
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
                         </nav>
                     </div>
                 </div>
-            </div>
+            {/* </div> */}
             <OrderUserModal setHandleOrderUserModal={setHandleOrderUserModal} 
             handleOrderUserData={handleOrderUserData} setHandleOrderUserData={setHandleOrderUserData} handleChangeOrderData={handleChangeOrderData} orderIn={orderIn} />
 

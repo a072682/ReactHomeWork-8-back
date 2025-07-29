@@ -9,7 +9,7 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 export const backProductsSlice = createSlice({
     name: "backProducts",
     initialState: {
-        backProductsAllData:[],
+        backProductsAllData:[],// 儲存所有產品資訊
         backProductData:[],
         backPagination:{},
         backSingleProductData:{},
@@ -74,13 +74,14 @@ export const {getBackProductAllData,getBackProductData,getBackPagination,getBack
 //後端
 
 //取得全部後端產品資料
+
     export const getBackOriginalAllData = createAsyncThunk(
         "backProducts/getBackOriginalAllData",
         async (_,{ dispatch }) => {
             try {
-                const getBackOriginalAllDataRef = await axios.get(`${BASE_URL}/v2/api/${API_PATH}/products/all`);
-                console.log("取得所有後端產品資料成功(Slice端)",getBackOriginalAllDataRef.data.products);
-                dispatch(getBackProductAllData(getBackOriginalAllDataRef.data.products));
+                const getBackOriginalAllDataRef = await axios.get(`${BASE_URL}/v2/api/${API_PATH}/admin/products/all`);
+                console.log("取得所有後端產品資料成功(Slice端)",Object.values(getBackOriginalAllDataRef.data.products));
+                dispatch(getBackProductAllData(Object.values(getBackOriginalAllDataRef.data.products)));
             } catch (error) {
                 console.log("取得所有後端產品資料失敗(Slice端)",error.response.data);
                 return(error.response.data);

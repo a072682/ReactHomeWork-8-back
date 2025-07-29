@@ -6,18 +6,32 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 
-function Login({setModalInstance,test,setTest}){
+function Login({setModalInstance,}){
 
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
+    //取得登入狀態
     const loginState = useSelector((state)=>{
         return(
           state.login.isAuthenticated
         )
-      })
+    })
+    //取得登入狀態
 
+    //控制Login視窗
     const loginUserModalRef = useRef(null);
+    //控制Login視窗
+
+    //控制式窗開啟和關閉(內部)
     const [loginUserModal,setLoginUserModal] = useState(null);
+    //控制式窗開啟和關閉(內部)
+
+    //控制式窗開啟和關閉(外部)
     useEffect(()=>{
         if (loginUserModalRef.current) {
+            //如果loginUserModalRef式窗存在
             const instance = new Modal(loginUserModalRef.current,{
                 backdrop:false
             });
@@ -34,61 +48,74 @@ function Login({setModalInstance,test,setTest}){
             }
         }
     },[]);
+    //控制式窗開啟和關閉(外部)
 
-     const btnByMoadlOpen = ()=>{
-        loginUserModal.show();
-    }
-    const btnByMoadlClose = ()=>{
-        loginUserModal?.hide();
-    }
+    //處理視窗開啟
+        const btnByMoadlOpen = ()=>{
+            loginUserModal.show();
+        }
+    //處理視窗開啟
+    //處理視窗關閉
+        const btnByMoadlClose = ()=>{
+            loginUserModal?.hide();
+        }
+    //處理視窗關閉
 
+    //帳號初始狀態
     const [account,setAccount]=useState({
         username:"",
         password:""
     });
+    //帳號初始狀態
 
-    const handleInputChange = (event)=>{
-        const{ value, name }= event.target;
-        setAccount({
-            ...account,
-            [name]:value
-        })
-    }
+    //處理帳號輸入函式
+        const handleInputChange = (event)=>{
+            const{ value, name }= event.target;
+            setAccount({
+                ...account,
+                [name]:value
+            })
+        }
+    //處理帳號輸入函式
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+    
 
-
+    //處理登入函式
     const handleLogin = async(event)=>{
         event.preventDefault();
-        console.log(account);
         try{
             const result = await dispatch(loginUser(account)).unwrap();
+            console.log("登陸輸出:",result);
             if(result.token){
                 console.log("登入成功(result)", result.token);
+                setAccount({
+                    username:"",
+                    password:""
+                });
                 btnByMoadlClose();
-                setTest("off");
-                navigate("/");
-            }
-            else if(!result.success){
-                console.log("登入失敗(result)");
+                //關閉login視窗
+                navigate("/backpages");
+                //傳送至首頁
             }
         }catch(error){
             console.log("登入失敗(error)");
+            setAccount({
+                username:"",
+                password:""
+            });
         }
     }
+    //處理登入函式
 
+    //處理驗證登入函式
     const handleLoginCheck = async()=>{
         try{
             const result = await dispatch(checkLogin()).unwrap();
+            console.log("驗證輸出:",result);
             if(result.success){
-                console.log("登入驗證成功(result)", result.success);
+                console.log("登入驗證成功(result)");
                 btnByMoadlClose();
-                if(test === "off"){
-                    console.log("登入驗證成功 test-off");
-                }else{
-                    setTest("off");
-                }
+                //關閉login視窗
             }else if(!result.success){
                 console.log("登入驗證失敗(result)");
             }  
@@ -96,11 +123,14 @@ function Login({setModalInstance,test,setTest}){
             console.log("登入驗證失敗:",error);
         }
     }
+    //處理驗證登入函式
 
     useEffect(()=>{
         const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*\=\s*([^;]*).*$)|^.*$/,"$1",);
+        //從 cookie抓出hexToken的資料
         if (token) {  // ✅ 只有當 token 存在時才執行
             axios.defaults.headers.common['Authorization'] = token;
+            //設定 axios 的全域預設標頭之後發出的每一個請求自動帶上 Authorization 標頭
             dispatch(tokenUpData({ token }));
             
             handleLoginCheck();
@@ -109,14 +139,6 @@ function Login({setModalInstance,test,setTest}){
         }
     },[setModalInstance]);
 
-    useEffect(()=>{
-        if(test === "on"){
-            console.log("on");
-        }
-        if(test=== "off"){
-            console.log("off");
-        }
-    },[test])
 
     useEffect(()=>{
         console.log("loginState狀態:",loginState);
@@ -128,7 +150,7 @@ function Login({setModalInstance,test,setTest}){
                 <div className="modal-dialog modal-dialog-centered modal-xl">
                     <div className="modal-content border-0 shadow">
                         <div className="modal-header border-bottom">
-                            <button onClick={()=>{setTest("off"),btnByMoadlClose()}} type="button" className="btn-close" aria-label="Close"></button>
+                            <button onClick={()=>{btnByMoadlClose()}} type="button" className="btn-close" aria-label="Close"></button>
                         </div>
                         <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                             <h1 className="mb-5">請先登入</h1>

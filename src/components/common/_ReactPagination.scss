@@ -1,0 +1,51 @@
+
+.pagination{
+  
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap:8px;
+
+  .page-item {
+
+    &.disabled{
+      background-color: #ececec;
+
+      .material-symbols-outlined{
+        color: #909090;
+      }
+    }
+    .page-link{
+      
+      cursor: pointer;
+      color: #000000;
+      transition: background-color 0.2s;
+      display: flex ;
+      justify-content: center;
+      align-items: center;
+      width: 48px;
+      height: 48px;
+      @media (max-width: 991.98px) { 
+          width: 32px;
+          height: 32px;
+      }
+      .material-symbols-outlined{
+        font-size: 24px;
+      }
+    }
+  }
+
+}
+
+.pagination .page-link {
+    /* 可設定長寬 */
+    
+  }
+  
+  .pagination .page-item.active .page-link {
+    /* 這是點選後的狀態 */
+    background-color: #000000;
+    border-color: #000000;
+    color: white;
+  }
+  

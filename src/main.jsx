@@ -12,7 +12,6 @@ import "swiper/css";// 核心 CSS
 import "swiper/css/navigation";// 左右箭頭
 import "swiper/css/pagination"; // 分頁點
 
-// import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   
