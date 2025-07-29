@@ -113,21 +113,30 @@ function ProductsModal ({setHandleProductsModal,singleProductData,setSingleProdu
         )
     });
 
+    useEffect(()=>{
+        console.log("圖片資訊更新:",backImgFileData);
+    },[backImgFileData]);
+
+    useEffect(()=>{
+        console.log("修改資料圖片更新:",singleProductData);
+    },[singleProductData])
+
     //圖片函示
     const handleFileChange = async(event)=>{
         const file = event.target.files[0];
         const formDate = new FormData();
         formDate.append("file-to-upload",file)
-        dispatch(handleBackFileSlice(formDate));
-        setSingleProductData({
-            ...singleProductData,
-            imageUrl:backImgFileData
-        })
+        const result = await dispatch(handleBackFileSlice(formDate));
+        if (result.payload?.success) {
+            setSingleProductData({
+                ...singleProductData,
+                imageUrl:result.payload.img,
+            })
+            console.log("測試:",result.payload.img);
+        }
     }
 
-    useEffect(()=>{
-        console.log("圖片資訊更新:",backImgFileData);
-    },[backImgFileData]);
+    
 
 
     return(

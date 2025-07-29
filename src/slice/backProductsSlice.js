@@ -219,11 +219,15 @@ export const editBackProductSlice = createAsyncThunk(
         "backProducts/handleBackFileSlice",
         async(formDate,{ dispatch })=>{
             try{
-            const handleBackFileSliceRef = await axios.post(`${BASE_URL}/v2/api/${API_PATH}/admin/upload`,formDate);
-            console.log("上傳圖片成功",handleBackFileSliceRef.data);
-            dispatch(getBackImgFile(handleBackFileSliceRef.data.imageUrl));
+                const handleBackFileSliceRef = await axios.post(`${BASE_URL}/v2/api/${API_PATH}/admin/upload`,formDate);
+                console.log("上傳圖片成功",handleBackFileSliceRef.data);
+                dispatch(getBackImgFile(handleBackFileSliceRef.data.imageUrl));
+                return { img:handleBackFileSliceRef.data.imageUrl,success: true, }; // 可選擇回傳狀態
             }catch(error){
-            console.log("上傳圖片失敗",error.data);
+                console.log("上傳圖片失敗",error.data);
+                return {
+                    success: false,
+                };
             }
         }
     )
